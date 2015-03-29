@@ -1,5 +1,6 @@
-import FRAMES.GiocoPanel;
-import FRAMES.ImpostazioniPanel;
+package RES;
+
+import FRAMES.InformazioniPanel;
 import FRAMES.IstruzioniPanel;
 import com.alee.extended.label.WebLinkLabel;
 import com.alee.laf.button.WebButton;
@@ -19,11 +20,13 @@ import java.awt.event.MouseEvent;
  */
 public class Gioco extends JFrame {
 
+
     public static final String NOME = "Puzzle Palazzo Schiffanoia";
     public static final int LARGHEZZA = 1200;
     public static final int ALTEZZA = 600;
 
     private final double posizione_divisore = .2d;
+
 
     private enum Stato {
         GIOCO,
@@ -35,20 +38,21 @@ public class Gioco extends JFrame {
 
     private Stato stato;
 
-    private static Gioco gioco;
+    private static Gioco frame;
 
     //Componenti finestra
     WebSplitPane interfaccia;
+    WebLabel label_tempo;
     WebProgressBar tempo;
     WebButton inizia;
     WebButton istruzioni;
     WebToggleButton pausa;
-    WebLabel impostazioni;
+    WebLabel informazioni;
     WebPanel sinistra_panel;
 
     WebPanel gioco_panel;
     WebPanel istruzioni_panel;
-    WebPanel impostazioni_panel;
+    WebPanel informazioni_panel;
 
     public Gioco() {
         initPanes();
@@ -58,33 +62,39 @@ public class Gioco extends JFrame {
     }
 
     private void initPanes() {
-        gioco_panel = new GiocoPanel();
+        gioco_panel = new FRAMES.GiocoPanel();
         istruzioni_panel = new IstruzioniPanel();
-        impostazioni_panel = new ImpostazioniPanel();
+        informazioni_panel = new InformazioniPanel();
     }
 
     private void initComp() {
         interfaccia = new WebSplitPane();
+        label_tempo = new WebLabel("Tempo rimasto:");
         tempo = new WebProgressBar();
         inizia = new WebButton("Inizia/Finisci");
         istruzioni = new WebButton("Istruzioni");
         pausa = new WebToggleButton("Pausa/Riprendi");
-        impostazioni = new WebLinkLabel("Impostazioni");
-        impostazioni.setHorizontalAlignment(WebLabel.CENTER);
+        informazioni = new WebLinkLabel("Informazioni");
+        informazioni.setHorizontalAlignment(WebLabel.CENTER);
         sinistra_panel = new WebPanel();
 
         SpringLayout layout = new SpringLayout();
         sinistra_panel.setLayout(layout);
 
         sinistra_panel.add(tempo);
+        sinistra_panel.add(label_tempo);
         sinistra_panel.add(inizia);
         sinistra_panel.add(istruzioni);
         sinistra_panel.add(pausa);
-        sinistra_panel.add(impostazioni);
+        sinistra_panel.add(informazioni);
 
         int margine = 5;
+        layout.putConstraint(SpringLayout.WEST, label_tempo, margine, SpringLayout.WEST, sinistra_panel);
+        layout.putConstraint(SpringLayout.NORTH, label_tempo, margine, SpringLayout.NORTH, sinistra_panel);
+        layout.putConstraint(SpringLayout.EAST, label_tempo, -margine, SpringLayout.EAST, sinistra_panel);
+
         layout.putConstraint(SpringLayout.WEST, tempo, margine, SpringLayout.WEST, sinistra_panel);
-        layout.putConstraint(SpringLayout.NORTH, tempo, margine, SpringLayout.NORTH, sinistra_panel);
+        layout.putConstraint(SpringLayout.NORTH, tempo, margine, SpringLayout.SOUTH, label_tempo);
         layout.putConstraint(SpringLayout.EAST, tempo, -margine, SpringLayout.EAST, sinistra_panel);
 
         layout.putConstraint(SpringLayout.WEST, inizia, margine, SpringLayout.WEST, sinistra_panel);
@@ -100,9 +110,9 @@ public class Gioco extends JFrame {
         layout.putConstraint(SpringLayout.NORTH, pausa, margine+5, SpringLayout.SOUTH, istruzioni);
         layout.putConstraint(SpringLayout.EAST, pausa, -margine, SpringLayout.EAST, sinistra_panel);
 
-        layout.putConstraint(SpringLayout.WEST, impostazioni, margine, SpringLayout.WEST, sinistra_panel);
-        layout.putConstraint(SpringLayout.EAST, impostazioni, -margine, SpringLayout.EAST, sinistra_panel);
-        layout.putConstraint(SpringLayout.SOUTH, impostazioni, -margine, SpringLayout.SOUTH, sinistra_panel);
+        layout.putConstraint(SpringLayout.WEST, informazioni, margine, SpringLayout.WEST, sinistra_panel);
+        layout.putConstraint(SpringLayout.EAST, informazioni, -margine, SpringLayout.EAST, sinistra_panel);
+        layout.putConstraint(SpringLayout.SOUTH, informazioni, -margine, SpringLayout.SOUTH, sinistra_panel);
 
         interfaccia.setLeftComponent(sinistra_panel);
         interfaccia.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
@@ -111,12 +121,28 @@ public class Gioco extends JFrame {
         setContentPane(interfaccia);
         setPreferredSize(new Dimension(LARGHEZZA, ALTEZZA));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        /*
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+
+        if (gd.isFullScreenSupported()) {
+            setUndecorated(true);
+            gd.setFullScreenWindow(this);
+        } else {
+            System.err.println("Full screen not supported");
+            setSize(100, 100); // just something to let you see the window
+            setVisible(true);
+        }
+        */
+
         pack();
         setVisible(true);
 
         interfaccia.setDividerLocation(posizione_divisore);
         interfaccia.setContinuousLayout(true);
-        interfaccia.setEnabled(false);
+        interfaccia.setEnabled(true);
+
+
     }
 
     private void initList() {
@@ -128,7 +154,8 @@ public class Gioco extends JFrame {
                         //Metti in stop
                         break;
                     case STOP:
-                        //Inizia nuova partita
+                        setPannelloDestro(gioco_panel);
+
                         break;
                     case PAUSA:
                         //Niente
@@ -186,10 +213,10 @@ public class Gioco extends JFrame {
             }
         });
 
-        impostazioni.addMouseListener(new MouseAdapter() {
+        informazioni.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                setPannelloDestro(impostazioni_panel);
+                setPannelloDestro(informazioni_panel);
             }
         });
     }
@@ -206,6 +233,6 @@ public class Gioco extends JFrame {
     }
 
     public static void main(String args[]) {
-        gioco = new Gioco();
+        frame = new Gioco();
     }
 }

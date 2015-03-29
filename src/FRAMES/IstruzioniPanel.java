@@ -14,6 +14,6 @@ public class IstruzioniPanel extends WebPanel {
     }
 
     private void initPanel() {
-        
+
     }
 }
