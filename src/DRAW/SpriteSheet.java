@@ -19,7 +19,8 @@ public class SpriteSheet {
     }
 
     public BufferedImage sottraiCarta(int colonna, int riga){
-        System.out.println(((colonna * larghezza)-larghezza)+"  :  "+((riga * altezza)-altezza)+" / "+larghezza +":"+ altezza);
+        //System.out.println(((colonna * larghezza)-larghezza)+"  :  "+((riga * altezza)-altezza)+" / "+larghezza +":"+ altezza);
+
         BufferedImage image = img.getSubimage((colonna * larghezza)-larghezza, (riga * altezza)-altezza, larghezza, altezza);
         return image;
     }

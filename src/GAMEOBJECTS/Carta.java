@@ -9,23 +9,38 @@ import java.awt.image.BufferedImage;
 public class Carta {
 
     private BufferedImage image;
-    private int altezza;
-    private int larghezza;
+    public static final int altezza = 142;
+    public static final int larghezza = 90;
     private int x, y;
 
-    private boolean muovibile;
+    private Point posizione;
 
-    public Carta(BufferedImage image, int x, int y, int altezza, int larghezza) {
+    private boolean bloccata;
+
+    public Carta(BufferedImage image, int x, int y) {
         this.x = x;
         this.y = y;
         this.image = image;
-        this.altezza = altezza;
-        this.larghezza = larghezza;
-        muovibile = true;
+        bloccata = false;
+    }
+
+    public boolean deveBloccarsi() {
+        int posx, posy;
+        posx = (int) posizione.getX();
+        posy = (int) posizione.getY();
+        if(x>=(posx-SpriteTable.margineErrore) && x<=(posx+SpriteTable.margineErrore)) {
+            if(y>=(posy-SpriteTable.margineErrore) && y<=(posy+SpriteTable.margineErrore)) {
+                setBloccata(true);
+                x = posx;
+                y = posy;
+                return true;
+            }
+        }
+        return false;
     }
 
     public void disegna(Graphics g) {
-        g.drawImage(image, x, y, altezza, larghezza, null);
+        g.drawImage(image, x, y, larghezza, altezza, null);
     }
 
     public int getX() {
@@ -56,23 +71,23 @@ public class Carta {
         return altezza;
     }
 
-    public void setAltezza(int altezza) {
-        this.altezza = altezza;
-    }
-
     public int getLarghezza() {
         return larghezza;
     }
 
-    public void setLarghezza(int larghezza) {
-        this.larghezza = larghezza;
+    public boolean isBloccata() {
+        return bloccata;
     }
 
-    public boolean isMuovibile() {
-        return muovibile;
+    public void setBloccata(boolean bloccata) {
+        this.bloccata = bloccata;
     }
 
-    public void setMuovibile(boolean muovibile) {
-        this.muovibile = muovibile;
+    public Point getPosizione() {
+        return posizione;
+    }
+
+    public void setPosizione(Point posizione) {
+        this.posizione = posizione;
     }
 }
