@@ -1,5 +1,7 @@
 package GAMEOBJECTS;
 
+import RES.Gioco;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
@@ -28,8 +30,8 @@ public class Carta {
         int posx, posy;
         posx = (int) posizione.getX();
         posy = (int) posizione.getY();
-        if(x>=(posx-SpriteTable.margineErrore) && x<=(posx+SpriteTable.margineErrore)) {
-            if(y>=(posy-SpriteTable.margineErrore) && y<=(posy+SpriteTable.margineErrore)) {
+        if(x>=(posx- Gioco.margineErrore) && x<=(posx+Gioco.margineErrore)) {
+            if(y>=(posy-Gioco.margineErrore) && y<=(posy+Gioco.margineErrore)) {
                 setBloccata(true);
                 x = posx;
                 y = posy;

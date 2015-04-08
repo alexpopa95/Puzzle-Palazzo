@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Puzzle Palazzo:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Puzzle_Palazzo_jar</output-path>
+    <root id="archive" name="Puzzle Palazzo.jar">
+      <element id="module-output" name="Puzzle Palazzo" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/weblaf-complete-1.28.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

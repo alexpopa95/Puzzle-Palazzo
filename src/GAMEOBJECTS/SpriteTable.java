@@ -10,7 +10,6 @@ import java.util.ArrayList;
 public class SpriteTable {
     public static final int altezza = Carta.altezza*4;
     public static final int larghezza = Carta.larghezza*4;
-    public static int margineErrore = 5;
 
     private int x;
     private int y;

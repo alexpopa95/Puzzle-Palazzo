@@ -8,6 +8,7 @@ import RES.Notification;
 import RES.Tempo;
 import RES.Utilities;
 import com.alee.laf.panel.WebPanel;
+import com.alee.laf.rootpane.WebFrame;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -18,11 +19,10 @@ import java.util.ArrayList;
 /**
  * Created by alexpopa95 on 24/03/15.
  */
-public class GiocoPanel extends Canvas implements Runnable {
+public class GiocoPanel extends WebPanel implements Runnable {
 
     private boolean running;
 
-    private WebPanel panel;
     private Thread thread;
 
     private ArrayList<Carta> carte;
@@ -32,22 +32,23 @@ public class GiocoPanel extends Canvas implements Runnable {
 
     private Tempo tempo;
 
-    private boolean carteOrdinate;
+    int alert1 = 25;
+    int alert2 = 10;
+    private boolean carteOrdinate = false;
+    private boolean alertTempoVisto = false;
 
     public GiocoPanel() {
-
-        panel = new WebPanel();
         caricaComponenti(Immagine.getImmaginiCarte(Utilities.randInt(1, Immagine.numeroSprite)), null);
         carteOrdinate = false;
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                if(selectedItem != null) {
+                if (selectedItem != null) {
                     gapX = 0;
                     gapY = 0;
-                    if(selectedItem.deveBloccarsi()) {
+                    if (selectedItem.deveBloccarsi()) {
                         setUltimaCarta(selectedItem);
-                        Notification.show("Rimangono altre "+getNumeroCarteNonBloccate()+" carte!");
+                        Notification.showTimer("Rimangono altre " + getNumeroCarteNonBloccate() + " carte!", Notification.MESSAGE, 3);
                     }
                     selectedItem = null;
                     //System.out.println("Rilasciato");
@@ -58,13 +59,13 @@ public class GiocoPanel extends Canvas implements Runnable {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if(Gioco.frame.stato == Gioco.Stato.VINTO) return;
-                if(Gioco.frame.stato == Gioco.Stato.VINTO) return;
-                if(Gioco.frame.stato == Gioco.Stato.PAUSA) return;
+                if (Gioco.frame.stato == Gioco.Stato.VINTO) return;
+                if (Gioco.frame.stato == Gioco.Stato.VINTO) return;
+                if (Gioco.frame.stato == Gioco.Stato.PAUSA) return;
                 Point pointer = e.getPoint();
                 if (selectedItem == null) {
                     for (Carta carta : carte) {
-                        if(!carta.isBloccata()) {
+                        if (!carta.isBloccata()) {
                             if (pointer.getX() > carta.getX() && pointer.getX() < carta.getX() + carta.getLarghezza()) {
                                 if (pointer.getY() > carta.getY() && pointer.getY() < carta.getY() + carta.getAltezza()) {
                                     selectedItem = carta;
@@ -85,14 +86,39 @@ public class GiocoPanel extends Canvas implements Runnable {
             @Override
             public void mouseDragged(MouseEvent e) {
                 Point pointer = e.getPoint();
-                if(selectedItem != null) {
-                    selectedItem.setX((int) pointer.getX()-gapX);
-                    selectedItem.setY((int) pointer.getY()-gapY);
+                if (selectedItem != null) {
+                    selectedItem.setX((int) pointer.getX() - gapX);
+                    selectedItem.setY((int) pointer.getY() - gapY);
                 }
                 super.mouseDragged(e);
             }
         });
-        panel.add(this);
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.setColor(Color.GRAY);
+        g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        g.drawImage(Immagine.sfondo, 0, 0, this.getWidth(), this.getHeight(), this);
+
+        //START DRAW -----------
+        tabella.disegna(g);
+        for(int i=carte.size()-1;i>=0;i--) {
+            carte.get(i).disegna(g);
+        }
+        if(Gioco.frame.stato == Gioco.Stato.PAUSA) {
+            g.setColor(Color.GRAY);
+            g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        }
+        else if(Gioco.frame.stato == Gioco.Stato.VINTO) {
+            g.setColor(Color.GREEN);
+            g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        }
+        else if(Gioco.frame.stato == Gioco.Stato.PERSO) {
+            g.setColor(Color.RED);
+            g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        }
     }
 
     private void verificaPosizioniCarte() {
@@ -102,18 +128,18 @@ public class GiocoPanel extends Canvas implements Runnable {
             y = carta.getY();
             larg = carta.getLarghezza();
             alt = carta.getAltezza();
-            if(x<0 || y<0 || (x+larg)>getWidth() || (y+alt)>getHeight()) {
+            if(x<0 || y<0 || (x+larg)>this.getWidth() || (y+alt)>this.getHeight()) {
                 if(x<0) {
                     carta.setX(0);
                 }
                 if(y<0) {
                     carta.setY(0);
                 }
-                if(x+larg > getWidth()) {
-                    carta.setX(getWidth()-larg);
+                if(x+larg > this.getWidth()) {
+                    carta.setX(this.getWidth()-larg);
                 }
-                if(y+alt > getHeight()) {
-                    carta.setY(getHeight()-alt);
+                if(y+alt > this.getHeight()) {
+                    carta.setY(this.getHeight()-alt);
                 }
             }
         }
@@ -142,45 +168,19 @@ public class GiocoPanel extends Canvas implements Runnable {
         }
     }
 
-    public void disegna() {
-        BufferStrategy buffer = this.getBufferStrategy();
-        if(buffer==null)
-        {
-            createBufferStrategy(2);
-            return;
-        }
-        try {
-            Graphics g = buffer.getDrawGraphics();
-            g.setColor(Color.GRAY);
-            g.fillRect(0, 0, getWidth(), getHeight());
-            g.drawImage(Immagine.sfondo, 0, 0, getWidth(), getHeight(), this);
-
-            //START DRAW -----------
-            tabella.disegna(g);
-            for(int i=carte.size()-1;i>=0;i--) {
-                carte.get(i).disegna(g);
-            }
-            if(Gioco.frame.stato == Gioco.Stato.PAUSA) {
-                g.setColor(Color.GRAY);
-                g.fillRect(0, 0, getWidth(), getHeight());
-            }
-            else if(Gioco.frame.stato == Gioco.Stato.VINTO) {
-                g.setColor(Color.GREEN);
-                g.fillRect(0, 0, getWidth(), getHeight());
-            }
-            else if(Gioco.frame.stato == Gioco.Stato.PERSO) {
-                g.setColor(Color.RED);
-                g.fillRect(0, 0, getWidth(), getHeight());
-            }
-            //END DRAW----------------
-
-            g.dispose();
-            buffer.show();
-        } catch(IllegalStateException ignored) {}
-    }
-
     public void aggiorna() {
         if(Gioco.frame.stato == Gioco.Stato.GIOCO) {
+            if(tempo.getSeconds() != alert1 && tempo.getSeconds() != alert2) {
+                alertTempoVisto = false;
+            }
+            if(tempo.getSeconds() == alert1 && !alertTempoVisto) {
+                Notification.showTimer("Hai ancora "+alert1+" secondi!", Notification.WARNING, 3);
+                alertTempoVisto = true;
+            }
+            if(tempo.getSeconds() == alert2 && !alertTempoVisto) {
+                Notification.showTimer("Hai ancora "+alert2+" secondi!", Notification.ERROR, 3);
+                alertTempoVisto = true;
+            }
             int vinto = controllaVittoria();
             if(vinto == 1) {
                 //HAI VINTO
@@ -240,7 +240,7 @@ public class GiocoPanel extends Canvas implements Runnable {
         long timer = System.currentTimeMillis();
 
         tempo = new Tempo(Gioco.total_time);
-
+        Notification.showTimer("Buona Fortuna! Hai a disposizione "+Gioco.total_time+" secondi...", Notification.CLOCK, 4);
         while(running) {
             //Game LOOP
             long now = System.nanoTime();
@@ -248,7 +248,7 @@ public class GiocoPanel extends Canvas implements Runnable {
             lastTime =now;
             if(delta >=1) {
                 aggiorna();
-                disegna();
+                this.repaint();
                 if(!carteOrdinate) ordinaComponenti();
                 verificaPosizioniCarte();
 
@@ -280,7 +280,7 @@ public class GiocoPanel extends Canvas implements Runnable {
 
     private void ordinaComponenti() {
         System.err.println("Ordino componenti");
-        tabella.setX((getWidth() / 2) - (SpriteTable.larghezza / 2));
+        tabella.setX((this.getWidth() / 2) - (SpriteTable.larghezza / 2));
         tabella.setY(20);
         tabella.creaPosizioni();
         carte = tabella.assegnaPosizioniInTabella(carte);
@@ -305,21 +305,21 @@ public class GiocoPanel extends Canvas implements Runnable {
                     y = 10;
                 }
                 else {
-                    y = (int) (getHeight()/4.1+list.get(i-1).getY());
+                    y = (int) (this.getHeight()/4.1+list.get(i-1).getY());
                 }
             }
             else if(i<12) //Sul lato basso
             {
-                y = getHeight() - (Carta.altezza + 20);
-                x = (int) (getWidth() / 10 + list.get(i-1).getX()-3);
+                y = this.getHeight() - (Carta.altezza + 20);
+                x = (int) (this.getWidth() / 10 + list.get(i-1).getX()-3);
             } else //sul lato destro
             {
-                x = getWidth()-Carta.larghezza-20;
+                x = this.getWidth()-Carta.larghezza-20;
                 if(i==12) {
                     y = 10;
                 }
                 else {
-                    y = (int) (getHeight()/4.1+list.get(i-1).getY());
+                    y = (int) (this.getHeight()/4.1+list.get(i-1).getY());
                 }
             }
             list.add(new Point(x, y));
@@ -333,9 +333,5 @@ public class GiocoPanel extends Canvas implements Runnable {
 
     public void setRunning(boolean running) {
         this.running = running;
-    }
-
-    public WebPanel getPanel() {
-        return panel;
     }
 }

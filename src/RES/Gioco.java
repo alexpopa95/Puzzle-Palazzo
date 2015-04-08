@@ -19,6 +19,7 @@ import com.alee.laf.panel.WebPanel;
 import com.alee.laf.rootpane.WebFrame;
 import com.alee.laf.splitpane.WebSplitPane;
 import com.alee.managers.language.data.TooltipWay;
+import com.alee.managers.notification.NotificationOption;
 import com.alee.managers.tooltip.TooltipManager;
 
 import javax.swing.*;
@@ -35,7 +36,8 @@ public class Gioco extends WebFrame {
 
     public static Color primaryThemeColor = Color.ORANGE;
     public static Color secondaryThemeColor = Color.RED;
-    public static int total_time = 30;
+    public static int total_time = 45;
+    public static int margineErrore = 25;
 
     public static final String NOME = "Puzzle Palazzo Schiffanoia";
     public static int LARGHEZZA = 900;
@@ -76,7 +78,7 @@ public class Gioco extends WebFrame {
         initComp();
         initList();
         stato = Stato.STOP;
-        //setFrameFullScreenMode(this, true);
+        setFrameFullScreenMode(this, true);
     }
 
     private void initPanes() {
@@ -204,7 +206,7 @@ public class Gioco extends WebFrame {
                         TooltipManager.setTooltip(iniziaOFerma, "Termina la partita", TooltipWay.up, 0);
                         if (gioco_panel != null) gioco_panel.stop();
                         gioco_panel = new FRAMES.GiocoPanel();
-                        setPannelloDestro(gioco_panel.getPanel());
+                        setPannelloDestro(gioco_panel);
                         gioco_panel.start();
                         iniziaOFerma.setIcon(Utilities.getIcon(Immagine.stop));
                         pausa.setVisible(true);
@@ -266,8 +268,7 @@ public class Gioco extends WebFrame {
         exit.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (gioco_panel != null) gioco_panel.setRunning(false);
-                dispose();
+                Notification.showCloseOption("Vuoi davvero chiudere?", Notification.APPLICATION);
             }
         });
 
@@ -321,6 +322,7 @@ public class Gioco extends WebFrame {
     }
 
     public static void main(String args[]) {
+        WebLookAndFeel.install();
         frame = new Gioco();
         Immagine.caricaImmagini();
         Immagine.caricaImmaginiCarte();
