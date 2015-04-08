@@ -34,10 +34,10 @@ import java.awt.event.MouseEvent;
  */
 public class Gioco extends WebFrame {
 
-    public static Color primaryThemeColor = Color.ORANGE;
+    public static Color primaryThemeColor = Color.decode("#7C4527");
     public static Color secondaryThemeColor = Color.RED;
-    public static int total_time = 45;
-    public static int margineErrore = 25;
+    public static int total_time = 60;
+    public static int margineErrore = 15;
 
     public static final String NOME = "Puzzle Palazzo Schiffanoia";
     public static int LARGHEZZA = 900;

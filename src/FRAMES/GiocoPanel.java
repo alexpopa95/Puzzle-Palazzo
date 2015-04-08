@@ -182,13 +182,16 @@ public class GiocoPanel extends WebPanel implements Runnable {
                 alertTempoVisto = true;
             }
             int vinto = controllaVittoria();
+
             if(vinto == 1) {
                 //HAI VINTO
                 Gioco.frame.setVittoria(true);
+                tempo.stop();
             }
             else if(vinto == 0) {
                 //HAI PERSO
                 Gioco.frame.setVittoria(false);
+                tempo.stop();
             }
         }
     }
